@@ -96,7 +96,7 @@ connection.onInitialize((params: InitializeParams) => {
 			textDocumentSync: TextDocumentSyncKind.Incremental,
 			// Tell the client that this server supports code completion.
 			completionProvider: {
-				resolveProvider: true,
+				resolveProvider: true
 			},
 		}
 	};
@@ -263,32 +263,38 @@ connection.onCompletion(
 			{
 				label: voc.getSymbolicName(WhileLexer.WRITE)!.toLowerCase(),
 				kind: CompletionItemKind.Method,
-				data: WhileLexer.WRITE
+				data: WhileLexer.WRITE,
+				commitCharacters: ["("]
 			},
 			{
 				label: voc.getSymbolicName(WhileLexer.READ)!.toLowerCase(),
 				kind: CompletionItemKind.Method,
-				data: WhileLexer.READ
+				data: WhileLexer.READ,
+				commitCharacters: ["("]
 			},
 			{
 				label: voc.getSymbolicName(WhileLexer.PRED)!.toLowerCase(),
 				kind: CompletionItemKind.Method,
-				data: WhileLexer.PRED
+				data: WhileLexer.PRED,
+				commitCharacters: ["("]
 			},
 			{
 				label: voc.getSymbolicName(WhileLexer.SUCC)!.toLowerCase(),
 				kind: CompletionItemKind.Method,
-				data: WhileLexer.SUCC
+				data: WhileLexer.SUCC,
+				commitCharacters: ["("]
 			},
 			{
 				label: voc.getSymbolicName(WhileLexer.LOOP)!.toLowerCase(),
 				kind: CompletionItemKind.Operator,
-				data: WhileLexer.LOOP
+				data: WhileLexer.LOOP,
+				commitCharacters: ["("]
 			},
 			{
 				label: voc.getSymbolicName(WhileLexer.WHILE)!.toLowerCase(),
 				kind: CompletionItemKind.Operator,
-				data: WhileLexer.WHILE
+				data: WhileLexer.WHILE,
+				commitCharacters: ["("]
 			},
 			{
 				label: voc.getSymbolicName(WhileLexer.RETURN)!.toLowerCase(),
@@ -308,7 +314,8 @@ connection.onCompletion(
 			{
 				label: voc.getSymbolicName(WhileLexer.BEGIN)!.toLowerCase(),
 				kind: CompletionItemKind.Keyword,
-				data: WhileLexer.BEGIN
+				data: WhileLexer.BEGIN,
+				commitCharacters: [":"]
 			},
 			{
 				label: voc.getSymbolicName(WhileLexer.END)!.toLowerCase(),
