@@ -1,9 +1,9 @@
 {
-	"name": "lsp-sample-server",
-	"description": "Example implementation of a language server in node.",
-	"version": "1.0.0",
-	"author": "Microsoft Corporation",
+	"name": "while-language-extension",
+	"description": "A language extension for the while programming language",
+	"author": "Petrov, Hempel",
 	"license": "MIT",
+	"version": "1.0.0",
 	"engines": {
 		"node": "*"
 	},
@@ -13,8 +13,7 @@
 	},
 	"dependencies": {
 		"vscode-languageserver": "^7.0.0",
-		"vscode-languageserver-textdocument": "^1.0.4",
-		"antlr4": "4.10.1"
+		"vscode-languageserver-textdocument": "^1.0.4"
 	},
 	"scripts": {}
 }
