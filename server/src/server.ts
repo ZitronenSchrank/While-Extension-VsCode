@@ -17,6 +17,7 @@ import {
 	InitializeResult
 } from 'vscode-languageserver/node';
 
+
 import {
 	TextDocument
 } from 'vscode-languageserver-textdocument';
@@ -25,27 +26,41 @@ import { WhileLexer } from './grammar/WhileLexer';
 import { CharStreams, CommonTokenStream, Recognizer, RecognitionException, ANTLRErrorListener, CommonToken } from 'antlr4ts';
 import { WhileParser } from './grammar/WhileParser';
 
+type LspError = {
+	startIndex: number,
+	endIndex: number,
+	message: string,
+}
+
 class LspParserErrorListener implements ANTLRErrorListener<any> {
-	private _startIndex = -1;
-	private _endIndex = -1;
-	private _message = "";
+
+	private static instance: LspParserErrorListener;
+
+	public static getInstance(): LspParserErrorListener {
+		if (!LspParserErrorListener.instance) {
+			LspParserErrorListener.instance = new LspParserErrorListener();
+		}
+
+		return LspParserErrorListener.instance;
+	}
+
+	private constructor() { /*EMPTY*/ }
+
+	private _errorList = new Array<LspError>();
 
 	public syntaxError<T>(recognizer: Recognizer<T, any>, offendingSymbol: T, line: number, charPositionInLine: number, msg: string, e: RecognitionException | undefined): void {
-		this._message = msg;
 		if (offendingSymbol instanceof CommonToken) {
-			this._startIndex = offendingSymbol.startIndex;
-			this._endIndex = offendingSymbol.stopIndex;
+			const _startIndex = offendingSymbol.startIndex;
+			const _endIndex = offendingSymbol.stopIndex;
+			this._errorList.push({ startIndex: _startIndex, endIndex: _endIndex, message: msg });
 		}
 		return;
 	}
-	public get startIndex() {
-		return this._startIndex;
+	public get messages() {
+		return this._errorList;
 	}
-	public get endIndex() {
-		return this._endIndex;
-	}
-	public get message() {
-		return this._message;
+	public clear() {
+		this._errorList = [];
 	}
 }
 
@@ -73,6 +88,7 @@ connection.onInitialize((params: InitializeParams) => {
 		capabilities.textDocument &&
 		capabilities.textDocument.publishDiagnostics &&
 		capabilities.textDocument.publishDiagnostics.relatedInformation
+
 	);
 
 	const result: InitializeResult = {
@@ -80,8 +96,8 @@ connection.onInitialize((params: InitializeParams) => {
 			textDocumentSync: TextDocumentSyncKind.Incremental,
 			// Tell the client that this server supports code completion.
 			completionProvider: {
-				resolveProvider: true
-			}
+				resolveProvider: true,
+			},
 		}
 	};
 	if (hasWorkspaceFolderCapability) {
@@ -163,33 +179,34 @@ documents.onDidChangeContent(change => {
 async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 	// In this simple example we get the settings for every validate run.
 	const settings = await getDocumentSettings(textDocument.uri);
+	const errorListener = LspParserErrorListener.getInstance();
+	errorListener.clear();
 
 	const inputStream = CharStreams.fromString(textDocument.getText());
 	const lexer = new WhileLexer(inputStream);
+	lexer.addErrorListener(errorListener);
+
 	const tokenStream = new CommonTokenStream(lexer);
 	const parser = new WhileParser(tokenStream);
-	const errorListener = new LspParserErrorListener();
-
 	parser.addErrorListener(errorListener);
+
 	const tree = parser.prog();
 	//console.log(errorLineNum);
 
 	const diagnostics: Diagnostic[] = [];
 
-	if (errorListener.startIndex !== -1) {
-
+	errorListener.messages.forEach((element) => {
 		const diagnostic: Diagnostic = {
 			severity: DiagnosticSeverity.Error,
 			range: {
-				start: textDocument.positionAt(errorListener.startIndex),
-				end: textDocument.positionAt(errorListener.endIndex)
+				start: textDocument.positionAt(element.startIndex),
+				end: textDocument.positionAt(element.endIndex)
 			},
-			message: `Syntax Error: ${errorListener.message}`,
+			message: `Syntax Error: ${element.message}`,
 			source: 'While Parser'
 		};
 		diagnostics.push(diagnostic);
-
-	}
+	});
 
 
 	/*let problems = 0;
@@ -240,6 +257,7 @@ connection.onCompletion(
 		// The pass parameter contains the position of the text document in
 		// which code complete got requested. For the example we ignore this
 		// info and always provide the same completion items.
+
 		const voc = WhileLexer.VOCABULARY;
 		return [
 			{
