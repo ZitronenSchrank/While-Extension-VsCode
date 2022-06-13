@@ -188,7 +188,6 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 				end: { line: element.startIndex - 1, character: element.endIndex + 1 }
 			};
 		}
-		console.log(range);
 
 		const diagnostic: Diagnostic = {
 			severity: DiagnosticSeverity.Error,
