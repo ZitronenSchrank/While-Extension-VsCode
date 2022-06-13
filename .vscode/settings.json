@@ -4,5 +4,17 @@
     "typescript.preferences.quoteStyle": "single",
     "editor.codeActionsOnSave": {
         "source.fixAll.eslint": true
-    }
+    },
+    "[antlr]": {
+        "editor.formatOnSave": false,
+        "editor.tabSize": 4,
+        "editor.insertSpaces": true,
+    },
+    "antlr4.generation": {
+        "mode": "external",
+        "language": "Typescript",
+        "listeners": false,
+        "visitors": true,
+        "outputDir": "../server/src/grammar/",
+    },
 }

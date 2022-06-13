@@ -14,19 +14,22 @@ import {
 	CompletionItemKind,
 	TextDocumentPositionParams,
 	TextDocumentSyncKind,
-	InitializeResult
+	InitializeResult,
 } from 'vscode-languageserver/node';
 
 
 import {
+	Position,
 	TextDocument
 } from 'vscode-languageserver-textdocument';
 
 import { WhileLexer } from './grammar/WhileLexer';
 import { CharStreams, CommonTokenStream, Recognizer, RecognitionException, ANTLRErrorListener, CommonToken } from 'antlr4ts';
 import { WhileParser } from './grammar/WhileParser';
+import { count } from 'console';
 
 type LspError = {
+	syntaxError: boolean,
 	startIndex: number,
 	endIndex: number,
 	message: string,
@@ -52,7 +55,10 @@ class LspParserErrorListener implements ANTLRErrorListener<any> {
 		if (offendingSymbol instanceof CommonToken) {
 			const _startIndex = offendingSymbol.startIndex;
 			const _endIndex = offendingSymbol.stopIndex;
-			this._errorList.push({ startIndex: _startIndex, endIndex: _endIndex, message: msg });
+			this._errorList.push({ syntaxError: true, startIndex: _startIndex, endIndex: _endIndex, message: msg });
+		} else if (!offendingSymbol) {
+			// Dirty
+			this._errorList.push({ syntaxError: false, startIndex: line, endIndex: charPositionInLine, message: msg });
 		}
 		return;
 	}
@@ -130,44 +136,16 @@ interface ExampleSettings {
 // The global settings, used when the `workspace/configuration` request is not supported by the client.
 // Please note that this is not the case when using this server with the client provided in this example
 // but could happen with other clients.
-const defaultSettings: ExampleSettings = { maxNumberOfProblems: 1000 };
-let globalSettings: ExampleSettings = defaultSettings;
-
-// Cache the settings of all open documents
-const documentSettings: Map<string, Thenable<ExampleSettings>> = new Map();
 
 connection.onDidChangeConfiguration(change => {
-	if (hasConfigurationCapability) {
-		// Reset all cached document settings
-		documentSettings.clear();
-	} else {
-		globalSettings = <ExampleSettings>(
-			(change.settings.languageServerExample || defaultSettings)
-		);
-	}
-
 	// Revalidate all open text documents
 	documents.all().forEach(validateTextDocument);
 });
 
-function getDocumentSettings(resource: string): Thenable<ExampleSettings> {
-	if (!hasConfigurationCapability) {
-		return Promise.resolve(globalSettings);
-	}
-	let result = documentSettings.get(resource);
-	if (!result) {
-		result = connection.workspace.getConfiguration({
-			scopeUri: resource,
-			section: 'languageServerExample'
-		});
-		documentSettings.set(resource, result);
-	}
-	return result;
-}
 
 // Only keep settings for open documents
 documents.onDidClose(e => {
-	documentSettings.delete(e.document.uri);
+	// documentSettings.delete(e.document.uri);
 });
 
 // The content of a text document has changed. This event is emitted
@@ -176,9 +154,10 @@ documents.onDidChangeContent(change => {
 	validateTextDocument(change.document);
 });
 
+
 async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 	// In this simple example we get the settings for every validate run.
-	const settings = await getDocumentSettings(textDocument.uri);
+	// const settings = await getDocumentSettings(textDocument.uri);
 	const errorListener = LspParserErrorListener.getInstance();
 	errorListener.clear();
 
@@ -196,11 +175,27 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 	const diagnostics: Diagnostic[] = [];
 
 	errorListener.messages.forEach((element) => {
-		const diagnostic: Diagnostic = {
-			severity: DiagnosticSeverity.Error,
-			range: {
+
+		let range: { start: Position, end: Position };
+		if (element.syntaxError) {
+			range = {
 				start: textDocument.positionAt(element.startIndex),
 				end: textDocument.positionAt(element.endIndex)
+			};
+		} else {
+			range = {
+				start: { line: element.startIndex - 1, character: element.endIndex },
+				end: { line: element.startIndex - 1, character: element.endIndex + 1 }
+			};
+		}
+		console.log(range);
+
+		const diagnostic: Diagnostic = {
+			severity: DiagnosticSeverity.Error,
+
+			range: {
+				start: range.start,
+				end: range.end
 			},
 			message: `Syntax Error: ${element.message}`,
 			source: 'While Parser'

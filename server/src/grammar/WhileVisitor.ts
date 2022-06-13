@@ -1,4 +1,4 @@
-// Generated from /home/zitrone/Documents/OwnProjects/WhileProjects/compiler_project/Grammatik/While.g4 by ANTLR 4.7.3-SNAPSHOT
+// Generated from /home/zitrone/Documents/OwnProjects/WhileProjects/while-lsp/grammar/While.g4 by ANTLR 4.7.3-SNAPSHOT
 
 
 import { ParseTreeVisitor } from "antlr4ts/tree/ParseTreeVisitor";
