@@ -16,4 +16,5 @@ This Language Extension works for ```.while``` and ```.loop``` text files. It ha
 - 1.0.0 Initial Release
 
 ## Annotaion
-This extension and compiler were written by [Richard H.](https://github.com/richardhempel) and [Anton P.](https://github.com/ZitronenSchrank)  and are the result of a student project at [Hochschule Furtwangen University](https://www.hs-furtwangen.de/), Germany. 
+
+This extension and compiler were written by [Richard H.](https://github.com/richardhempel) and [Anton P.](https://github.com/ZitronenSchrank)  and are the result of a student project at [Hochschule Furtwangen University](https://www.hs-furtwangen.de/), Germany.
