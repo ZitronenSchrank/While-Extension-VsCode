@@ -5,6 +5,11 @@
 **/tsconfig.json
 **/tsconfig.base.json
 contributing.md
+images/**
+!images/Logo256.png
+!images/Logo128.png
+grammar/**
+*.vsix
 .travis.yml
 client/node_modules/**
 !client/node_modules/vscode-jsonrpc/**

@@ -13,6 +13,7 @@ This Language Extension works for ```.while``` and ```.loop``` text files. It ha
 
 ## Versions
 
+- 1.0.1 Bug Fix
 - 1.0.0 Initial Release
 
 ## Annotaion
