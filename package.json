@@ -3,15 +3,25 @@
 	"description": "A language extension for the while programming language",
 	"author": "Petrov, Hempel",
 	"license": "MIT",
+	"readme": "README.md",
 	"version": "1.0.1",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/ZitronenSchrank/While-Extension-VsCode"
 	},
 	"publisher": "ZitronenSchrank",
-	"categories": [],
 	"keywords": [
+		"While",
+		"Loop",
+		"IntelliSense",
+		"ZitronenSchrank",
+		"HFU",
+		"Hochschule Furtwangen University",
 		"multi-root ready"
+	],
+	"categories": [
+		"Programming Languages",
+		"Snippets"
 	],
 	"engines": {
 		"vscode": "^1.63.0"
