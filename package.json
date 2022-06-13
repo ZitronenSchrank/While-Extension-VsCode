@@ -19,6 +19,7 @@
 	"activationEvents": [
 		"onLanguage:while"
 	],
+	"icon": "images/Logo128.png",
 	"main": "./client/out/extension",
 	"contributes": {
 		"languages": [
